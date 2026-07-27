@@ -3,11 +3,16 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <EEPROM.h>
+#include <WiFi.h>
+#include <LittleFS.h>
+#include <WebServer.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET    -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+WebServer server(80);
 
 const int pinVERT = A0;     
 const int pinHORZ = A1;     
@@ -150,9 +155,44 @@ void setup() {
   }
   display.clearDisplay();
   nowyKlocek();
+
+  // --- Uruchomienie systemu plików i serwera WWW ---
+  if(!LittleFS.begin(true)){
+    Serial.println("Błąd montowania LittleFS!");
+  } else {
+    Serial.println("LittleFS zamontowany.");
+  }
+
+  WiFi.softAP("Tetris_ESP32", "12345678");
+  Serial.print("Adres IP serwera: ");
+  Serial.println(WiFi.softAPIP());
+
+  server.on("/", HTTP_GET, []() {
+    File file = LittleFS.open("/index.html", "r");
+    if (!file) {
+      server.send(404, "text/plain", "Brak pliku index.html!");
+      return;
+    }
+    server.streamFile(file, "text/html");
+    file.close();
+  });
+
+  server.on("/style.css", HTTP_GET, []() {
+    File file = LittleFS.open("/style.css", "r");
+    if (!file) {
+      server.send(404, "text/plain", "Brak pliku style.css!");
+      return;
+    }
+    server.streamFile(file, "text/css");
+    file.close();
+  });
+
+  server.begin();
+  Serial.println("Serwer WWW wystartował.");
 }
 
 void loop() {
+  server.handleClient();
   int odczytX = analogRead(pinVERT);      
   int odczytY = analogRead(pinHORZ);      
   int stanPrzycisku = digitalRead(pinSEL); 
