@@ -10,6 +10,25 @@
     <div class="card">
         <h1>Sterowanie Tetrisem</h1>
         <p class="status">Status: Połaczono z ESP32</p>
+
+        <section class="project-section">
+            <h2>Opis projektu</h2>
+            <p>To jest prosty projekt Tetrisa obsługiwany przez ESP32. Poniżej możesz odkryć grafikę z finezją.</p>
+
+            <div class="reveal-controls">
+                <label class="switch" for="imageToggle">
+                    <input type="checkbox" id="imageToggle">
+                    <span class="slider"></span>
+                    <span class="switch-text">Pokaż grafikę</span>
+                </label>
+                <button type="button" class="reveal-button" id="revealButton">Pokaż detal</button>
+            </div>
+
+            <div class="reveal-card" id="imageRevealCard" aria-hidden="true">
+                <img src="../assets/images/Tetris_ESP32.WEBP" alt="Grafika projektu Nano ESP32 Tetris" class="project-image">
+            </div>
+        </section>
+
         <button id="startButton">Start Game</button>
 
         <div class="pad">
@@ -19,5 +38,21 @@
             <button class="btn vide">SZYBKI SPADEK</button>
         </div>
     </div>
+    <script>
+        const toggle = document.getElementById('imageToggle');
+        const button = document.getElementById('revealButton');
+        const revealCard = document.getElementById('imageRevealCard');
+
+        function setReveal(visible) {
+            toggle.checked = visible;
+            revealCard.classList.toggle('is-visible', visible);
+            revealCard.setAttribute('aria-hidden', String(!visible));
+        }
+
+        button.addEventListener('click', () => setReveal(!toggle.checked));
+        toggle.addEventListener('change', () => setReveal(toggle.checked));
+
+        setReveal(false);
+    </script>
 </body>
 </html>

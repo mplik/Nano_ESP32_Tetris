@@ -10,8 +10,40 @@
   <main class="card">
     <h1>Nano ESP32 Tetris</h1>
     <p class="subtitle">Projekt na Arduino Nano ESP32 z prostą stroną WWW.</p>
-    <p>To jest strona publikowana przez GitHub Pages z katalogu <code>docs</code>.</p>
+    <section class="project-section">
+      <h2>Opis projektu</h2>
+      <p>To jest prosty projekt Tetrisa obsługiwany przez ESP32. Poniżej możesz odkryć grafikę z finezją.</p>
+
+      <div class="reveal-controls">
+        <label class="switch" for="imageToggle">
+          <input type="checkbox" id="imageToggle" />
+          <span class="slider"></span>
+          <span class="switch-text">Pokaż grafikę</span>
+        </label>
+        <button type="button" class="reveal-button" id="revealButton">Pokaż detal</button>
+      </div>
+
+      <div class="reveal-card" id="imageRevealCard" aria-hidden="true">
+        <img src="../assets/images/Tetris_ESP32.WEBP" alt="Grafika projektu Nano ESP32 Tetris" class="project-image" />
+      </div>
+    </section>
     <a class="btn" href="https://github.com/mplik/Nano_ESP32_Tetris" target="_blank" rel="noreferrer">Zobacz projekt na GitHub</a>
   </main>
+  <script>
+    const toggle = document.getElementById('imageToggle');
+    const button = document.getElementById('revealButton');
+    const revealCard = document.getElementById('imageRevealCard');
+
+    function setReveal(visible) {
+      toggle.checked = visible;
+      revealCard.classList.toggle('is-visible', visible);
+      revealCard.setAttribute('aria-hidden', String(!visible));
+    }
+
+    button.addEventListener('click', () => setReveal(!toggle.checked));
+    toggle.addEventListener('change', () => setReveal(toggle.checked));
+
+    setReveal(false);
+  </script>
 </body>
 </html>
