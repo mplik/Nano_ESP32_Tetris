@@ -23,7 +23,7 @@
         <button type="button" class="reveal-button" id="revealButton">Pokaż detal</button>
       </div>
 
-      <div class="reveal-card" id="imageRevealCard" aria-hidden="true">
+      <div class="reveal-card is-visible" id="imageRevealCard" aria-hidden="false">
         <img src="assets/images/Tetris_ESP32.WEBP" alt="Grafika projektu Nano ESP32 Tetris" class="project-image" />
       </div>
     </section>
@@ -43,7 +43,7 @@
     button.addEventListener('click', () => setReveal(!toggle.checked));
     toggle.addEventListener('change', () => setReveal(toggle.checked));
 
-    setReveal(false);
+    setReveal(true);
   </script>
 </body>
 </html>
