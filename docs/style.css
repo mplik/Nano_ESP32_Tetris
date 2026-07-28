@@ -133,3 +133,82 @@ h1 {
   text-decoration: none;
   border-radius: 999px;
 }
+
+/* Mobile / small-screen styles */
+@media (max-width: 600px) {
+  body {
+    padding: 1rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0b1220, #111827);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 360px;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .project-section {
+    margin: 0.8rem 0 1rem;
+  }
+
+  .project-image {
+    max-width: 100%;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .reveal-controls {
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: stretch;
+  }
+
+  .switch {
+    justify-content: center;
+    width: 100%;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .slider {
+    width: 40px;
+    height: 22px;
+  }
+
+  .slider::before {
+    width: 18px;
+    height: 18px;
+    top: 2px;
+    left: 2px;
+  }
+
+  .reveal-button, .btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .pad {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pad .btn {
+    flex: 1 1 45%;
+    min-width: 120px;
+  }
+}
