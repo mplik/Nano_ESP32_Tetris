@@ -7,43 +7,120 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="card">
+  <main class="card docs-page">
+    <p class="eyebrow">Nano_ESP32_Tetris</p>
     <h1>Nano ESP32 Tetris</h1>
-    <p class="subtitle">Projekt na Arduino Nano ESP32 z prostą stroną WWW.</p>
+    <p class="subtitle">Projekt realizowany w ramach eksperymentu z mikrokontrolerem Arduino Nano ESP32 oraz środowiskiem PlatformIO.</p>
+
     <section class="project-section">
       <h2>Opis projektu</h2>
-      <p>To jest prosty projekt Tetrisa obsługiwany przez ESP32. Poniżej znajduje się grafika projektu.</p>
+      <p>Nano ESP32 Tetris to gra logiczna oparta na mechanice klasycznego Tetrisa, uruchomiona na płytce Arduino Nano ESP32. Projekt jest rozwijany jako przykład połączenia sprzętu embedded z prostym interfejsem WWW oraz obsługą lokalnego Wi-Fi.</p>
 
       <div class="reveal-controls">
-        <label class="switch" for="imageToggle">
-          <input type="checkbox" id="imageToggle" checked />
+        <label class="switch" for="projectImageToggle">
+          <input type="checkbox" id="projectImageToggle" checked />
           <span class="slider"></span>
-          <span class="switch-text">Pokaż grafikę</span>
+          <span class="switch-text">Pokaż obraz</span>
         </label>
-        <button type="button" class="reveal-button" id="revealButton">Pokaż / ukryj</button>
+        <button type="button" class="reveal-button" id="projectImageButton">Pokaż / ukryj</button>
       </div>
 
-      <div class="reveal-card is-visible" id="imageRevealCard" aria-hidden="false">
-        <img src="docs/assets/images/Tetris_ESP32.WEBP" alt="Grafika projektu Nano ESP32 Tetris" class="project-image" />
+      <div class="reveal-card is-visible" id="projectImageCard" aria-hidden="false">
+        <img src="assets/images/Tetris_ESP32.WEBP" alt="Grafika projektu Nano ESP32 Tetris" class="project-image" />
       </div>
     </section>
-    <a class="btn" href="https://github.com/mplik/Nano_ESP32_Tetris" target="_blank" rel="noreferrer">Zobacz projekt na GitHub</a>
+
+    <section class="project-section">
+      <h2>Aktualny stan rozwoju</h2>
+      <ul>
+        <li>logika gry Tetris na wyświetlaczu OLED,</li>
+        <li>sterowanie joystickiem,</li>
+        <li>zapis najlepszego wyniku do pamięci EEPROM,</li>
+        <li>podstawowe efekty dźwiękowe,</li>
+        <li>eksperymentalne wsparcie dla Wi-Fi i prostego serwera WWW.</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Sprzęt</h2>
+      <ul>
+        <li>Arduino Nano ESP32</li>
+        <li>Wyświetlacz OLED SSD1306 128x64</li>
+        <li>Joystick analogowy 2-axis</li>
+        <li>Buzzer</li>
+        <li>Płytka prototypowa / przewody</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Sterowanie</h2>
+      <ul>
+        <li>Lewo / Prawo: ruch klocka w poziomie</li>
+        <li>Dół: przyspieszenie spadania</li>
+        <li>Przycisk: obrót klocka</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Funkcje</h2>
+      <ul>
+        <li>mechanika gry Tetris,</li>
+        <li>punktacja i usuwanie pełnych linii,</li>
+        <li>zapis najwyższego wyniku,</li>
+        <li>obsługa dźwięków,</li>
+        <li>lokalne Wi-Fi z prostą stroną WWW (w trakcie rozwijania).</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Środowisko i zależności</h2>
+      <ul>
+        <li>framework Arduino dla ESP32,</li>
+        <li>biblioteki Adafruit GFX i Adafruit SSD1306,</li>
+        <li>LittleFS do obsługi plików strony WWW,</li>
+        <li>WiFi oraz WebServer.</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Jak uruchomić</h2>
+      <ol>
+        <li>Otwórz projekt w PlatformIO.</li>
+        <li>Wgraj firmware do płyty.</li>
+        <li>Jeśli chcesz użyć obsługi plików strony WWW, wgraj również system plików.</li>
+        <li>Po uruchomieniu płyty połącz się z siecią Wi-Fi utworzoną przez urządzenie i otwórz adres IP podany w monitorze szeregowym.</li>
+      </ol>
+    </section>
+
+    <section class="project-section">
+      <h2>Struktura projektu</h2>
+      <ul>
+        <li><strong>src/main.cpp</strong> – główna logika gry, sterowanie oraz obsługa Wi-Fi/WWW</li>
+        <li><strong>data/</strong> – pliki strony internetowej</li>
+        <li><strong>platformio.ini</strong> – konfiguracja projektu PlatformIO</li>
+      </ul>
+    </section>
+
+    <section class="project-section">
+      <h2>Uwagi</h2>
+      <p>Projekt jest nadal rozwijany. Niektóre elementy, zwłaszcza związane z Wi-Fi i interfejsem WWW, mogą ulegać zmianom w zależności od aktualnego etapu prac.</p>
+    </section>
   </main>
   <script>
-    const toggle = document.getElementById('imageToggle');
-    const button = document.getElementById('revealButton');
-    const revealCard = document.getElementById('imageRevealCard');
+    const projectImageToggle = document.getElementById('projectImageToggle');
+    const projectImageButton = document.getElementById('projectImageButton');
+    const projectImageCard = document.getElementById('projectImageCard');
 
-    function setReveal(visible) {
-      toggle.checked = visible;
-      revealCard.classList.toggle('is-visible', visible);
-      revealCard.setAttribute('aria-hidden', String(!visible));
+    function setProjectImageVisible(visible) {
+      projectImageToggle.checked = visible;
+      projectImageCard.classList.toggle('is-visible', visible);
+      projectImageCard.setAttribute('aria-hidden', String(!visible));
     }
 
-    button.addEventListener('click', () => setReveal(!toggle.checked));
-    toggle.addEventListener('change', () => setReveal(toggle.checked));
+    projectImageButton.addEventListener('click', () => setProjectImageVisible(!projectImageToggle.checked));
+    projectImageToggle.addEventListener('change', () => setProjectImageVisible(projectImageToggle.checked));
 
-    setReveal(true);
+    setProjectImageVisible(true);
   </script>
 </body>
 </html>
