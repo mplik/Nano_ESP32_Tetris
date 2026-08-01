@@ -46,6 +46,8 @@ unsigned long interwal = 500;
 
 unsigned long ostatniRuch = 0;
 bool przyciskPuszczony = true;
+// Bufor polecenia wysyłanego z interfejsu web (0 = brak, 1=left,2=right,3=rotate,4=drop)
+volatile uint8_t webAction = 0;
 
 void zapiszHighScore() {
   if (punkty > highScore) {
@@ -187,12 +189,54 @@ void setup() {
     file.close();
   });
 
+  // Endpoint do przyjmowania poleceń z interfejsu web
+  server.on("/action", HTTP_GET, []() {
+    if (server.hasArg("go")) {
+      String a = server.arg("go");
+      uint8_t code = 0;
+      if (a == "left") code = 1;
+      else if (a == "right") code = 2;
+      else if (a == "rotate") code = 3;
+      else if (a == "drop") code = 4;
+      if (code) {
+        webAction = code;
+        Serial.print("Web action: ");
+        Serial.println(a);
+      }
+    }
+    server.send(200, "text/plain", "OK");
+  });
+
   server.begin();
   Serial.println("Serwer WWW wystartował.");
 }
 
 void loop() {
   server.handleClient();
+
+  // Obsługa poleceń z interfejsu web (ustawiana przez handler /action)
+  if (webAction != 0) {
+    uint8_t action = webAction;
+    webAction = 0;
+    if (action == 1) { // left
+      if (!kolizja(aktualnyX - 1, aktualnyY, rotacja)) aktualnyX--;
+    } else if (action == 2) { // right
+      if (!kolizja(aktualnyX + 1, aktualnyY, rotacja)) aktualnyX++;
+    } else if (action == 3) { // rotate
+      int nastepnaRotacja = (rotacja + 1) % 4;
+      if (!kolizja(aktualnyX, aktualnyY, nastepnaRotacja)) {
+        rotacja = nastepnaRotacja;
+        grajDzwiek(600, 40);
+      }
+    } else if (action == 4) { // drop
+      if (!kolizja(aktualnyX, aktualnyY + 1, rotacja)) {
+        aktualnyY++;
+      } else {
+        zamrozKlocek();
+      }
+    }
+    ostatniRuch = millis();
+  }
   int odczytX = analogRead(pinVERT);      
   int odczytY = analogRead(pinHORZ);      
   int stanPrzycisku = digitalRead(pinSEL); 

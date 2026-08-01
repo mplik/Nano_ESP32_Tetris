@@ -32,10 +32,10 @@
         <button id="startButton">Start Game</button>
 
         <div class="pad">
-            <button class="btn">LEWO</button>
-            <button class="btn">OBROT</button>
-            <button class="btn">PRAWO</button>
-            <button class="btn vide">SZYBKI SPADEK</button>
+            <button id="btn-left" class="btn">LEWO</button>
+            <button id="btn-rotate" class="btn">OBROT</button>
+            <button id="btn-right" class="btn">PRAWO</button>
+            <button id="btn-drop" class="btn vide">SZYBKI SPADEK</button>
         </div>
     </div>
     <script>
@@ -53,6 +53,26 @@
         toggle.addEventListener('change', () => setReveal(toggle.checked));
 
         setReveal(true);
+
+        // --- Web control: send command to ESP32 ---
+        function sendCommand(cmd) {
+            fetch('/action?go=' + encodeURIComponent(cmd), { method: 'GET' })
+                .then(resp => {
+                    if (!resp.ok) console.warn('Server response', resp.status);
+                })
+                .catch(err => console.error('Fetch error:', err));
+        }
+
+        // Attach handlers to control buttons
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnRotate = document.getElementById('btn-rotate');
+        const btnDrop = document.getElementById('btn-drop');
+
+        if (btnLeft) btnLeft.addEventListener('click', () => sendCommand('left'));
+        if (btnRight) btnRight.addEventListener('click', () => sendCommand('right'));
+        if (btnRotate) btnRotate.addEventListener('click', () => sendCommand('rotate'));
+        if (btnDrop) btnDrop.addEventListener('click', () => sendCommand('drop'));
     </script>
 </body>
 </html>

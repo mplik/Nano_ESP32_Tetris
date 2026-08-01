@@ -45,9 +45,17 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
    ```bash
    pio run --target upload --environment arduino_nano_esp32
    ```
-3. Jeśli chcesz użyć obsługi plików strony WWW, wgraj również system plików:
+3. Jeśli chcesz użyć obsługi plików strony WWW, wgraj również system plików (LittleFS).
+   Najpierw zbuduj obraz systemu plików, następnie go wgraj:
    ```bash
+   pio run --target buildfs --environment arduino_nano_esp32
    pio run --target uploadfs --environment arduino_nano_esp32
+   ```
+
+   W PowerShell (jeśli używasz wbudowanego środowiska PlatformIO):
+   ```powershell
+   .\.platformio\penv\Scripts\platformio.exe run --target buildfs --environment arduino_nano_esp32
+   .\.platformio\penv\Scripts\platformio.exe run --target uploadfs --environment arduino_nano_esp32
    ```
 4. Po uruchomieniu płyty połącz się z siecią Wi‑Fi utworzoną przez urządzenie (jeśli funkcja jest aktywna) i otwórz adres IP podany w monitorze szeregowym.
 
