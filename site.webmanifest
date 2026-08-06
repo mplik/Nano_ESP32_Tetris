@@ -1,0 +1,13 @@
+{
+  "name": "Nano ESP32 Tetris",
+  "short_name": "NanoTetris",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#38bdf8",
+  "icons": [
+    { "src": "/assets/images/favicon-variant1-nt.svg", "sizes": "64x64", "type": "image/svg+xml" },
+    { "src": "/assets/images/favicon-variant2-nt.svg", "sizes": "64x64", "type": "image/svg+xml" },
+    { "src": "/assets/images/favicon-variant3-nt.svg", "sizes": "64x64", "type": "image/svg+xml" }
+  ]
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#0f172a"/>
+  <g transform="translate(8,8) scale(0.75)">
+    <rect x="0" y="0" width="32" height="32" fill="#38bdf8"/>
+    <rect x="32" y="0" width="32" height="32" fill="#38bdf8"/>
+    <rect x="0" y="32" width="32" height="32" fill="#f87338"/>
+    <rect x="32" y="32" width="32" height="32" fill="#f87338"/>
+  </g>
+  <text x="50%" y="52%" font-family="Inter, Roboto, Arial, sans-serif" font-weight="700" font-size="20" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">NT</text>
+</svg>
