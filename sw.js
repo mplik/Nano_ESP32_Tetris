@@ -4,7 +4,13 @@ const ASSETS_TO_CACHE = [
   '/index.html',
   '/site.webmanifest',
   '/docs/style.css',
-  '/docs/assets/images/game_boy.png'
+  '/docs/assets/images/game_boy.png',
+  '/docs/assets/images/favicon-32x32.png',
+  '/docs/assets/images/favicon-16x16.png',
+  '/docs/assets/images/android-chrome-192x192.png',
+  '/docs/assets/images/android-chrome-512x512.png',
+  '/docs/assets/images/apple-touch-icon.png',
+  '/docs/assets/images/favicon.ico'
 ];
 
 self.addEventListener('install', event => {
