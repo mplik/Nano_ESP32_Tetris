@@ -1,16 +1,13 @@
-const CACHE_NAME = 'nano-tetris-v1';
+const CACHE_NAME = 'nano-tetris-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/site.webmanifest',
   '/docs/style.css',
   '/docs/assets/images/game_boy.png',
-  '/docs/assets/images/favicon-32x32.png',
-  '/docs/assets/images/favicon-16x16.png',
-  '/docs/assets/images/android-chrome-192x192.png',
-  '/docs/assets/images/android-chrome-512x512.png',
-  '/docs/assets/images/apple-touch-icon.png',
-  '/docs/assets/images/favicon.ico'
+  '/docs/assets/images/Game_Boy_faficon.png',
+  '/docs/assets/images/Game_Boy_faficon_16.png',
+  '/docs/assets/images/Game_Boy_faf.png'
 ];
 
 self.addEventListener('install', event => {
