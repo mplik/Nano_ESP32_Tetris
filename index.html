@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="docs/style.css" />
   <meta name="description" content="Nano ESP32 Tetris — prosty projekt z interfejsem WWW dla ESP32" />
   <!-- Favicon (prefer PNG/ICO files) -->
-  <link rel="icon" href="/docs/assets/images/favicon-32x32.png" sizes="32x32" type="image/png">
-  <link rel="icon" href="/docs/assets/images/favicon-16x16.png" sizes="16x16" type="image/png">
-  <link rel="shortcut icon" href="/docs/assets/images/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="/docs/assets/images/apple-touch-icon.png">
-  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="/docs/assets/images/Game_Boy_faficon.png?v=3">
+  <link rel="icon" type="image/png" sizes="16x16" href="/docs/assets/images/Game_Boy_faficon_16.png?v=3">
+  <link rel="shortcut icon" type="image/png" href="/docs/assets/images/Game_Boy_faficon.png?v=3">
+  <link rel="apple-touch-icon" href="/docs/assets/images/Game_Boy_faf.png?v=3">
+  <link rel="manifest" href="/site.webmanifest?v=2">
   <meta name="theme-color" content="#0f172a">
   <meta name="msapplication-TileColor" content="#38bdf8">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -58,7 +58,7 @@
   </script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then(() => console.log('SW registered')).catch(()=>console.log('SW failed'));
+      navigator.serviceWorker.register('/sw.js?v=2').then(() => console.log('SW registered')).catch(()=>console.log('SW failed'));
     }
   </script>
 </body>
