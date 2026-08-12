@@ -49,6 +49,19 @@ bool przyciskPuszczony = true;
 // Bufor polecenia wysyłanego z interfejsu web (0 = brak, 1=left,2=right,3=rotate,4=drop)
 volatile uint8_t webAction = 0;
 
+String contentTypeFromPath(const String& path) {
+  if (path.endsWith(".html")) return "text/html";
+  if (path.endsWith(".css")) return "text/css";
+  if (path.endsWith(".js")) return "application/javascript";
+  if (path.endsWith(".json") || path.endsWith(".webmanifest")) return "application/manifest+json";
+  if (path.endsWith(".png")) return "image/png";
+  if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
+  if (path.endsWith(".webp")) return "image/webp";
+  if (path.endsWith(".svg")) return "image/svg+xml";
+  if (path.endsWith(".ico")) return "image/x-icon";
+  return "text/plain";
+}
+
 void zapiszHighScore() {
   if (punkty > highScore) {
     highScore = punkty;
@@ -205,6 +218,27 @@ void setup() {
       }
     }
     server.send(200, "text/plain", "OK");
+  });
+
+  server.onNotFound([]() {
+    String path = server.uri();
+    if (path == "/") {
+      path = "/index.html";
+    }
+
+    if (!LittleFS.exists(path)) {
+      server.send(404, "text/plain", "Not found");
+      return;
+    }
+
+    File file = LittleFS.open(path, "r");
+    if (!file) {
+      server.send(500, "text/plain", "Błąd otwarcia pliku");
+      return;
+    }
+
+    server.streamFile(file, contentTypeFromPath(path));
+    file.close();
   });
 
   server.begin();
