@@ -1,6 +1,20 @@
-# Nano ESP32 Tetris
+# Nano ESP32 
 
-Projekt realizowany w ramach eksperymentu z mikrokontrolerem Arduino Nano ESP32 oraz środowiskiem PlatformIO. Celem jest stworzenie klasycznej gry Tetris uruchamianej na małym wyświetlaczu OLED, z prostym sterowaniem i dodatkowymi funkcjami rozszerzającymi doświadczenie użytkownika.
+## 🎮 Retro Tetris Handheld - DFRobot + Nano ESP32
+
+Zbudowałem wraz z grupą przyjacół małą konsolkę na płytce prototypowej z joystickiem i OLED 0.96" SSD1306.
+
+<p align="center">
+  <img src="docs/assets/images/retro_tetris_handheld.gif" width="450" />
+</p>
+
+- **MCU:** Arduino Nano ESP32
+- **Wyświetlacz:** OLED SSD1306 128x64 (PTS:0 HI:110)
+- **Sterowanie:** Analog joystick
+- **Styl:** 16-bit pixel art, CRT effect
+
+
+Projekt jest realizowany w ramach eksperymentu z mikrokontrolerem Arduino Nano ESP32 oraz środowiskiem PlatformIO. Celem jest stworzenie klasycznej gry Tetris uruchamianej na małym wyświetlaczu OLED, z prostym sterowaniem i dodatkowymi funkcjami rozszerzającymi doświadczenie użytkownika.
 
 ## Opis projektu
 Nano ESP32 Tetris to gra logiczna oparta na mechanice klasycznego Tetrisa, uruchomiona na płytce Arduino Nano ESP32. Projekt jest rozwijany jako przykład połączenia sprzętu embedded z prostym interfejsem WWW oraz obsługą lokalnego Wi‑Fi.
