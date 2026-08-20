@@ -178,6 +178,12 @@ void setup() {
     while(1); 
   }
   display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.println("Laczenie z WiFi...");
+  display.println("Otworz Tetris_Setup");
+  display.display();
   nowyKlocek();
 
   // --- Uruchomienie systemu plików i serwera WWW ---
