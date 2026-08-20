@@ -20,6 +20,7 @@ const int pinVERT = A0;
 const int pinHORZ = A1;     
 const int pinSEL = A2;      
 const int pinBUZZER = 8;    
+const int pinLED = 2;       
 
 #define MARGIN_LEFT 40
 #define BOARD_WIDTH 10
@@ -140,6 +141,9 @@ void sprawdzLinie() {
     }
   }
   if (zrobionoPunkt) {
+    digitalWrite(pinLED, LOW);
+    delay(50);
+    digitalWrite(pinLED, HIGH);
     grajDzwiek(800, 100);
   }
 }
@@ -163,7 +167,9 @@ void setup() {
   randomSeed(analogRead(A3));
   pinMode(pinSEL, INPUT_PULLUP);
   pinMode(pinBUZZER, OUTPUT);
+  pinMode(pinLED, OUTPUT);
   digitalWrite(pinBUZZER, LOW);
+  digitalWrite(pinLED, HIGH);
   
   EEPROM.begin(EEPROM_SIZE);
   odczytajHighScore();
