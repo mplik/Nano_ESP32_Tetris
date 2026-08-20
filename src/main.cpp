@@ -4,6 +4,7 @@
 #include <Adafruit_SSD1306.h>
 #include <EEPROM.h>
 #include <WiFi.h>
+#include <WiFiManager.h>
 #include <LittleFS.h>
 #include <WebServer.h>
 
@@ -13,6 +14,7 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 WebServer server(80);
+WiFiManager wifiManager;
 
 const int pinVERT = A0;     
 const int pinHORZ = A1;     
@@ -157,6 +159,7 @@ void zamrozKlocek() {
 }
 
 void setup() {
+  Serial.begin(9600);
   randomSeed(analogRead(A3));
   pinMode(pinSEL, INPUT_PULLUP);
   pinMode(pinBUZZER, OUTPUT);
@@ -178,9 +181,9 @@ void setup() {
     Serial.println("LittleFS zamontowany.");
   }
 
-  WiFi.softAP("Tetris_ESP32", "12345678");
+  wifiManager.autoConnect("Tetris_Setup");
   Serial.print("Adres IP serwera: ");
-  Serial.println(WiFi.softAPIP());
+  Serial.println(WiFi.localIP());
 
   server.on("/", HTTP_GET, []() {
     File file = LittleFS.open("/index.html", "r");
