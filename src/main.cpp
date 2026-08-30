@@ -42,8 +42,11 @@ const byte klocki[7][4][4] = {
 };
 
 int aktualnyKlocek, aktualnyX, aktualnyY, rotacja;
+int nastepnyKlocek;  // <--- Zmienna na kolejny klocek
 int punkty = 0;
 int highScore = 0;
+int linie = 0;   // <--- zlicza usunięte linie
+int poziom = 1;  // <--- poziom gry (wzrost prędkości)
 unsigned long czasOpadania = 0;
 unsigned long interwal = 500; 
 
@@ -109,13 +112,17 @@ bool kolizja(int nx, int ny, int nr) {
 }
 
 void nowyKlocek() {
-  aktualnyKlocek = random(0, 7);
+  aktualnyKlocek = nastepnyKlocek;
+  nastepnyKlocek = random(0, 7);   // <--- Losowanie kolejnego klocka
   aktualnyX = BOARD_WIDTH / 2 - 2;
   aktualnyY = 0;
   rotacja = 0;
   if (kolizja(aktualnyX, aktualnyY, rotacja)) {
     zapiszHighScore();
     punkty = 0;
+    linie = 0;  // <--- Resetowanie liczby linii
+    poziom = 1; // <--- Resetowanie poziomu gry
+    interwal = 500; // <--- Resetowanie prędkości opadania
     memset(plansza, 0, sizeof(plansza));
     grajDzwiek(150, 300);
   }
@@ -130,6 +137,11 @@ void sprawdzLinie() {
     }
     if (pelna) {
       punkty += 10;
+      linie++;
+      if (linie % 10 == 0) { // <--- Co 10 linii zwiększ poziom
+        poziom++;
+        interwal = max(100UL, interwal - 40); // <--- Zwiększ prędkość
+      }
       zrobionoPunkt = true;
       for (int ty = y; ty > 0; ty--) {
         for (int tx = 0; tx < BOARD_WIDTH; tx++) {
@@ -352,12 +364,36 @@ void loop() {
 
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+
+  // Wyświetlanie punktów i najlepszego wyniku
   display.setCursor(0, 0);
   display.print("PTS:");
-  display.print(punkty);
   display.setCursor(0, 10);
+  display.print(punkty);
+
+
+  // Wyświetlanie najlepszego wyniku
+  display.setCursor(0, 20);
   display.print("HI:");
+  display.setCursor(0, 30);
   display.print(highScore);
+
+  // Wyświetlanie napisu NEXT i podglądu klocka
+  display.setCursor(0, 40);
+  display.print("NEXT:");
+
+  // Wyświetlanie poziomu trudności
+  display.setCursor(0, 50);
+  display.print("L:");
+  display.print(poziom);
+
+  for (int x = 0; x < 4; x++) {
+    for (int y = 0; y < 4; y++) {
+      if (klocki[nastepnyKlocek][y][x]) {
+        display.fillRect(20 + x * 2, 50 + y * 2, 2, 2, SSD1306_WHITE);
+      }
+    }
+  }
 
   display.display();
   delay(20);
