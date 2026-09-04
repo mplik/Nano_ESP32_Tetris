@@ -43,8 +43,52 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - mechanika gry Tetris,
 - punktacja i usuwanie pełnych linii,
 - zapis najwyższego wyniku,
+- podgląd następnego klocka,
 - obsługa dźwięków,
+- ustawienia poziomów trudności,
 - lokalne Wi‑Fi z prostą stroną WWW (w trakcie rozwijania).
+
+## Szczegóły rozgrywki
+- plansza gry ma wymiary `10 × 20` pól,
+- dostępnych jest 7 rodzajów klocków,
+- za każdą usuniętą linię przyznawane jest 10 punktów,
+- poziom zwiększa się automatycznie po usunięciu każdych 10 linii,
+- wraz ze wzrostem poziomu skraca się czas opadania klocków,
+- po zakończeniu gry plansza i bieżący wynik są resetowane.
+
+Na ekranie OLED wyświetlane są aktualny wynik (`PTS`), najlepszy wynik (`HI`),
+poziom (`L`) oraz podgląd kolejnego klocka (`NEXT`).
+
+## Połączenia sprzętowe
+| Element | Pin / interfejs |
+| --- | --- |
+| Joystick, oś pionowa | `A0` |
+| Joystick, oś pozioma | `A1` |
+| Przycisk joysticka | `A2` |
+| Buzzer | `D8` |
+| Dioda LED | `D2` |
+| OLED SSD1306 | I2C, adres `0x3C` |
+
+## Wi-Fi i panel WWW
+Do konfiguracji połączenia używany jest WiFiManager. Przy braku zapisanej
+konfiguracji urządzenie uruchamia sieć konfiguracyjną `Tetris_Setup`.
+Po połączeniu z domową siecią adres urządzenia można odczytać w monitorze
+szeregowym. Panel WWW jest serwowany z systemu plików LittleFS na porcie `80`.
+
+Panel umożliwia sterowanie grą z przeglądarki: ruchem w lewo i w prawo,
+obrotem oraz przyspieszeniem opadania. Polecenia są wysyłane przez endpoint:
+
+```text
+/action?go=left
+/action?go=right
+/action?go=rotate
+/action?go=drop
+```
+
+## Efekty i pamięć
+- obrót klocka, usunięcie linii i zakończenie gry sygnalizowane są dźwiękiem,
+- po usunięciu linii miga dioda LED,
+- najlepszy wynik jest zapisywany w EEPROM i zachowywany po restarcie urządzenia.
 
 ## Środowisko i zależności
 Projekt jest przygotowany pod PlatformIO i wykorzystuje:
@@ -80,3 +124,7 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
 
 ## Uwagi
 Projekt jest nadal rozwijany. Niektóre elementy, zwłaszcza związane z Wi‑Fi i interfejsem WWW, mogą ulegać zmianom w zależności od aktualnego etapu prac.
+
+W obecnej wersji przycisk `Start Game` w panelu WWW jest elementem interfejsu,
+ale nie uruchamia osobnej procedury startowej. Panel WWW nie wyświetla jeszcze
+wyniku ani bieżącego stanu gry.
