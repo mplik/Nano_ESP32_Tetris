@@ -16,11 +16,13 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 WebServer server(80);
 WiFiManager wifiManager;
 
-const int pinVERT = A0;     
-const int pinHORZ = A1;     
-const int pinSEL = A2;      
-const int pinBUZZER = 8;    
-const int pinLED = 2;       
+const int pinLeft = 4;
+const int pinRight = 5;
+const int pinDown = 6;
+const int pinRotate = 7;
+const int pinPause = 9;
+const int pinBUZZER = 8;
+const int pinLED = 2;
 
 #define MARGIN_LEFT 40
 #define BOARD_WIDTH 10
@@ -52,6 +54,8 @@ unsigned long interwal = 500;
 
 unsigned long ostatniRuch = 0;
 bool przyciskPuszczony = true;
+bool czyPauza = false;
+bool poprzedniStanPauzy = HIGH;
 // Bufor polecenia wysyłanego z interfejsu web (0 = brak, 1=left,2=right,3=rotate,4=drop)
 volatile uint8_t webAction = 0;
 
@@ -78,7 +82,7 @@ void zapiszHighScore() {
 
 void odczytajHighScore() {
   EEPROM.get(EEPROM_ADDR, highScore);
-  if (highScore == 0xFFFFFFFF) {
+  if (highScore < 0 || highScore > 30000) {
     highScore = 0;
   }
 }
@@ -153,9 +157,9 @@ void sprawdzLinie() {
     }
   }
   if (zrobionoPunkt) {
-    digitalWrite(pinLED, LOW);
-    delay(50);
     digitalWrite(pinLED, HIGH);
+    delay(50);
+    digitalWrite(pinLED, LOW);
     grajDzwiek(800, 100);
   }
 }
@@ -177,11 +181,15 @@ void zamrozKlocek() {
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(A3));
-  pinMode(pinSEL, INPUT_PULLUP);
+  pinMode(pinLeft, INPUT_PULLUP);
+  pinMode(pinRight, INPUT_PULLUP);
+  pinMode(pinDown, INPUT_PULLUP);
+  pinMode(pinRotate, INPUT_PULLUP);
+  pinMode(pinPause, INPUT_PULLUP);
   pinMode(pinBUZZER, OUTPUT);
   pinMode(pinLED, OUTPUT);
   digitalWrite(pinBUZZER, LOW);
-  digitalWrite(pinLED, HIGH);
+  digitalWrite(pinLED, LOW);
   
   EEPROM.begin(EEPROM_SIZE);
   odczytajHighScore();
@@ -275,6 +283,15 @@ void setup() {
 void loop() {
   server.handleClient();
 
+  bool aktualnyStanPauzy = digitalRead(pinPause);
+  if (aktualnyStanPauzy == LOW && poprzedniStanPauzy == HIGH) {
+    czyPauza = !czyPauza;
+    delay(200);
+  }
+  poprzedniStanPauzy = aktualnyStanPauzy;
+
+  if (!czyPauza) {
+
   // Obsługa poleceń z interfejsu web (ustawiana przez handler /action)
   if (webAction != 0) {
     uint8_t action = webAction;
@@ -298,30 +315,32 @@ void loop() {
     }
     ostatniRuch = millis();
   }
-  int odczytX = analogRead(pinVERT);      
-  int odczytY = analogRead(pinHORZ);      
-  int stanPrzycisku = digitalRead(pinSEL); 
+
+  bool stanLeft = digitalRead(pinLeft);
+  bool stanRight = digitalRead(pinRight);
+  bool stanDown = digitalRead(pinDown);
+  bool stanRotate = digitalRead(pinRotate);
   
-  // Sterowanie poziome dopasowane do odczytów 0 i 4095
+  // Sterowanie poziome przyciskami
   if (millis() - ostatniRuch > 150) {
-    if (odczytX > 3800) { // Lewo
+    if (stanLeft == LOW) {
       if (!kolizja(aktualnyX - 1, aktualnyY, rotacja)) aktualnyX--;
       ostatniRuch = millis();
     }
-    else if (odczytX < 500) { // Prawo
+    else if (stanRight == LOW) {
       if (!kolizja(aktualnyX + 1, aktualnyY, rotacja)) aktualnyX++;
       ostatniRuch = millis();
     }
   }
 
-  // Przyspieszenie w dół (dół daje odczyt bliski 0)
+  // Przyspieszenie w dół
   unsigned long aktualnyInterwal = interwal;
-  if (odczytY > 3500) { 
+  if (stanDown == LOW) {
     aktualnyInterwal = 50; 
   }
 
   // Obrót przyciskiem
-  if (stanPrzycisku == LOW) { 
+  if (stanRotate == LOW) {
     if (przyciskPuszczony) {
       int nastepnaRotacja = (rotacja + 1) % 4;
       if (!kolizja(aktualnyX, aktualnyY, nastepnaRotacja)) {
@@ -341,6 +360,7 @@ void loop() {
       zamrozKlocek();
     }
     czasOpadania = millis();
+  }
   }
 
   display.clearDisplay();
@@ -393,6 +413,11 @@ void loop() {
         display.fillRect(20 + x * 2, 50 + y * 2, 2, 2, SSD1306_WHITE);
       }
     }
+  }
+
+  if (czyPauza) {
+    display.setCursor(50, 28);
+    display.print("PAUSE");
   }
 
   display.display();
