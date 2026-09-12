@@ -10,7 +10,7 @@ Zbudowałem wraz z grupą przyjacół małą konsolkę na płytce prototypowej z
 
 - **MCU:** Arduino Nano ESP32
 - **Wyświetlacz:** OLED SSD1306 128x64 (PTS:0 HI:110)
-- **Sterowanie:** Analog joystick
+- **Sterowanie:** Analog joystick lub przyciski
 - **Styl:** 16-bit pixel art, CRT effect
 
 
@@ -22,22 +22,34 @@ Nano ESP32 Tetris to gra logiczna oparta na mechanice klasycznego Tetrisa, uruch
 ## Aktualny stan rozwoju
 Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - logika gry Tetris na wyświetlaczu OLED,
-- sterowanie joystickiem,
+- sterowanie joystickiem lub alternatywnie zestawem przycisków,
+- możliwość wstrzymania i wznowienia gry,
 - zapis najlepszego wyniku do pamięci EEPROM,
 - podstawowe efekty dźwiękowe,
+- sygnalizacja usunięcia pełnej linii za pomocą diody LED,
 - eksperymentalne wsparcie dla Wi‑Fi i prostego serwera WWW.
 
 ## Sprzęt
 - Arduino Nano ESP32
 - Wyświetlacz OLED SSD1306 128x64
 - Joystick analogowy 2-axis
+- Alternatywnie: cztery przyciski sterujące oraz przycisk pauzy
 - Buzzer
 - Płytka prototypowa / przewody
 
 ## Sterowanie
+
+### Wariant joystickowy
 - Lewo / Prawo: ruch klocka w poziomie
 - Dół: przyspieszenie spadania
-- Przycisk: obrót klocka
+- Przycisk joysticka: obrót klocka
+
+### Wariant z przyciskami
+- Lewo: przesunięcie klocka w lewo
+- Prawo: przesunięcie klocka w prawo
+- Dół: przyspieszenie spadania
+- Obrót: obrót klocka
+- Pauza: wstrzymanie lub wznowienie gry
 
 ## Funkcje
 - mechanika gry Tetris,
@@ -46,6 +58,7 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - podgląd następnego klocka,
 - obsługa dźwięków,
 - ustawienia poziomów trudności,
+- pauza i wznowienie rozgrywki,
 - lokalne Wi‑Fi z prostą stroną WWW (w trakcie rozwijania).
 
 ## Szczegóły rozgrywki
@@ -69,6 +82,16 @@ poziom (`L`) oraz podgląd kolejnego klocka (`NEXT`).
 | Dioda LED | `D2` |
 | OLED SSD1306 | I2C, adres `0x3C` |
 
+### Wariant z przyciskami
+
+| Funkcja | Pin |
+| --- | --- |
+| Lewo | `D4` |
+| Prawo | `D5` |
+| Dół | `D6` |
+| Obrót | `D7` |
+| Pauza | `D9` |
+
 ## Wi-Fi i panel WWW
 Do konfiguracji połączenia używany jest WiFiManager. Przy braku zapisanej
 konfiguracji urządzenie uruchamia sieć konfiguracyjną `Tetris_Setup`.
@@ -87,7 +110,8 @@ obrotem oraz przyspieszeniem opadania. Polecenia są wysyłane przez endpoint:
 
 ## Efekty i pamięć
 - obrót klocka, usunięcie linii i zakończenie gry sygnalizowane są dźwiękiem,
-- po usunięciu linii miga dioda LED,
+- dioda LED pozostaje zgaszona podczas normalnej rozgrywki,
+- po uzupełnieniu i usunięciu pełnej linii dioda LED zapala się na krótką chwilę,
 - najlepszy wynik jest zapisywany w EEPROM i zachowywany po restarcie urządzenia.
 
 ## Środowisko i zależności
