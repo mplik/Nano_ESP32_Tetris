@@ -75,11 +75,13 @@
         const btnRight = document.getElementById('btn-right');
         const btnRotate = document.getElementById('btn-rotate');
         const btnDrop = document.getElementById('btn-drop');
+        const startButton = document.getElementById('startButton');
 
         if (btnLeft) btnLeft.addEventListener('click', () => sendCommand('left'));
         if (btnRight) btnRight.addEventListener('click', () => sendCommand('right'));
         if (btnRotate) btnRotate.addEventListener('click', () => sendCommand('rotate'));
         if (btnDrop) btnDrop.addEventListener('click', () => sendCommand('drop'));
+        if (startButton) startButton.addEventListener('click', () => sendCommand('start'));
     </script>
 </body>
 </html>
