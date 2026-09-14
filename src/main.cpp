@@ -4,6 +4,8 @@
 #include <Adafruit_SSD1306.h>
 #include <EEPROM.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <WiFiManager.h>
 #include <LittleFS.h>
 #include <WebServer.h>
@@ -23,6 +25,7 @@ const int pinRotate = 7;
 const int pinPause = 9;
 const int pinBUZZER = 8;
 const int pinLED = 2;
+const char* googleSheetsUrl = "https://script.google.com/macros/s/AKfycbwffRV2scPw2zQlvZ_5IsjHOVbul0d1vmrOtT-WFDQibqawrBlPSHblQreHbFbD3W9wtQ/exec";
 
 #define MARGIN_LEFT 40
 #define BOARD_WIDTH 10
@@ -56,6 +59,8 @@ unsigned long ostatniRuch = 0;
 bool przyciskPuszczony = true;
 bool czyPauza = false;
 bool poprzedniStanPauzy = HIGH;
+bool czyKoniecGry = false;
+bool wynikWyslany = false;
 // Bufor polecenia wysyłanego z interfejsu web (0 = brak, 1=left,2=right,3=rotate,4=drop)
 volatile uint8_t webAction = 0;
 
@@ -93,6 +98,41 @@ void grajDzwiek(int czestotliwosc, int czasMs) {
   digitalWrite(pinBUZZER, LOW);
 }
 
+void wyslijWynikDoArkusza() {
+  if (wynikWyslany) {
+    return;
+  }
+  wynikWyslany = true;
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Brak WiFi - wynik nie zostal wyslany.");
+    return;
+  }
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  String url = String(googleSheetsUrl) + "?punkty=" + String(punkty) + "&player=Gracz";
+
+  Serial.println("Wysylanie wyniku do Google Sheets...");
+  if (!http.begin(client, url)) {
+    Serial.println("Nie mozna polaczyc z Google Sheets.");
+    return;
+  }
+  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
+
+  int kodOdpowiedzi = http.GET();
+  if (kodOdpowiedzi > 0) {
+    Serial.print("Odpowiedz Google Sheets: ");
+    Serial.println(kodOdpowiedzi);
+    Serial.println(http.getString());
+  } else {
+    Serial.print("Blad wysylania wyniku: ");
+    Serial.println(http.errorToString(kodOdpowiedzi));
+  }
+  http.end();
+}
+
 bool pobierzKlocek(int k, int r, int x, int y) {
   int nx = x, ny = y;
   if (r == 1) { nx = y; ny = 3 - x; }
@@ -123,13 +163,28 @@ void nowyKlocek() {
   rotacja = 0;
   if (kolizja(aktualnyX, aktualnyY, rotacja)) {
     zapiszHighScore();
-    punkty = 0;
-    linie = 0;  // <--- Resetowanie liczby linii
-    poziom = 1; // <--- Resetowanie poziomu gry
-    interwal = 500; // <--- Resetowanie prędkości opadania
-    memset(plansza, 0, sizeof(plansza));
+    wyslijWynikDoArkusza();
+    czyKoniecGry = true;
     grajDzwiek(150, 300);
   }
+}
+
+void resetujGre() {
+  punkty = 0;
+  linie = 0;
+  poziom = 1;
+  interwal = 500;
+  memset(plansza, 0, sizeof(plansza));
+  czyKoniecGry = false;
+  wynikWyslany = false;
+  czyPauza = false;
+  przyciskPuszczony = false;
+  aktualnyKlocek = random(0, 7);
+  nastepnyKlocek = random(0, 7);
+  aktualnyX = BOARD_WIDTH / 2 - 2;
+  aktualnyY = 0;
+  rotacja = 0;
+  czasOpadania = millis();
 }
 
 void sprawdzLinie() {
@@ -246,6 +301,7 @@ void setup() {
       else if (a == "right") code = 2;
       else if (a == "rotate") code = 3;
       else if (a == "drop") code = 4;
+      else if (a == "start") code = 5;
       if (code) {
         webAction = code;
         Serial.print("Web action: ");
@@ -282,6 +338,32 @@ void setup() {
 
 void loop() {
   server.handleClient();
+
+  if (czyKoniecGry) {
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(35, 15);
+    display.print("GAME OVER");
+    display.setCursor(20, 30);
+    display.print("Wynik: ");
+    display.print(punkty);
+
+    if ((millis() / 500) % 2 == 0) {
+      display.setCursor(18, 48);
+      display.print("PRESS TO START");
+    }
+
+    display.display();
+
+    uint8_t gameOverAction = webAction;
+    webAction = 0;
+    if (digitalRead(pinRotate) == LOW || gameOverAction == 5) {
+      resetujGre();
+      delay(300);
+    }
+    return;
+  }
 
   bool aktualnyStanPauzy = digitalRead(pinPause);
   if (aktualnyStanPauzy == LOW && poprzedniStanPauzy == HIGH) {
