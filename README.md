@@ -27,7 +27,10 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - zapis najlepszego wyniku do pamięci EEPROM,
 - podstawowe efekty dźwiękowe,
 - sygnalizacja usunięcia pełnej linii za pomocą diody LED,
-- eksperymentalne wsparcie dla Wi‑Fi i prostego serwera WWW.
+- lokalne Wi-Fi i serwer WWW do zdalnego sterowania,
+- ekran `GAME OVER` z prezentacją końcowego wyniku,
+- ponowne uruchamianie gry przyciskiem obrotu lub przyciskiem `Start Game` w panelu WWW,
+- wysyłanie końcowego wyniku do Google Sheets przez HTTPS.
 
 ## Sprzęt
 - Arduino Nano ESP32
@@ -59,7 +62,10 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - obsługa dźwięków,
 - ustawienia poziomów trudności,
 - pauza i wznowienie rozgrywki,
-- lokalne Wi‑Fi z prostą stroną WWW (w trakcie rozwijania).
+- lokalne Wi-Fi z panelem WWW,
+- zdalne sterowanie ruchem, obrotem i przyspieszeniem opadania,
+- zdalny restart po zakończeniu gry,
+- rejestracja wyniku w arkuszu Google Sheets.
 
 ## Szczegóły rozgrywki
 - plansza gry ma wymiary `10 × 20` pól,
@@ -67,7 +73,10 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - za każdą usuniętą linię przyznawane jest 10 punktów,
 - poziom zwiększa się automatycznie po usunięciu każdych 10 linii,
 - wraz ze wzrostem poziomu skraca się czas opadania klocków,
-- po zakończeniu gry plansza i bieżący wynik są resetowane.
+- po wykryciu kolizji przy tworzeniu nowego klocka gra przechodzi do stanu `GAME OVER`,
+- w stanie `GAME OVER` rozgrywka jest zatrzymana do czasu uruchomienia nowej gry,
+- końcowy wynik jest wysyłany jednokrotnie do Google Sheets,
+- po ponownym uruchomieniu plansza, wynik, liczba linii, poziom i interwał opadania są resetowane.
 
 Na ekranie OLED wyświetlane są aktualny wynik (`PTS`), najlepszy wynik (`HI`),
 poziom (`L`) oraz podgląd kolejnego klocka (`NEXT`).
@@ -106,7 +115,27 @@ obrotem oraz przyspieszeniem opadania. Polecenia są wysyłane przez endpoint:
 /action?go=right
 /action?go=rotate
 /action?go=drop
+/action?go=start
 ```
+
+Polecenie `start` uruchamia nową rozgrywkę wyłącznie w stanie `GAME OVER`.
+Przycisk `OBROT` zachowuje funkcję obrotu klocka podczas normalnej gry, a fizyczny
+przycisk obrotu uruchamia nową rozgrywkę po zakończeniu poprzedniej.
+
+## Integracja z Google Sheets
+Po przejściu gry do stanu `GAME OVER` firmware wysyła jednokrotnie żądanie HTTPS
+do wdrożonej aplikacji Google Apps Script. Przekazywane są parametry:
+
+- `punkty` – końcowa liczba punktów,
+- `player` – identyfikator gracza; obecnie wartość domyślna `Gracz`.
+
+Aplikacja Apps Script dopisuje dane do arkusza w kolumnach `DATA`, `GRACZ` i `WYNIK`.
+Do obsługi transmisji wykorzystywane są biblioteki `HTTPClient` oraz
+`WiFiClientSecure` dostępne w frameworku Arduino dla ESP32. Firmware obsługuje
+również przekierowania HTTP stosowane przez wdrożenia Google Apps Script.
+
+Adres wdrożenia nie jest przechowywany w dokumentacji publicznej. Jest zapisany
+w konfiguracji firmware urządzenia.
 
 ## Efekty i pamięć
 - obrót klocka, usunięcie linii i zakończenie gry sygnalizowane są dźwiękiem,
@@ -119,7 +148,8 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
 - framework Arduino dla ESP32,
 - biblioteki Adafruit GFX i Adafruit SSD1306,
 - LittleFS do obsługi plików strony WWW,
-- WiFi oraz WebServer.
+- WiFi oraz WebServer,
+- HTTPClient oraz WiFiClientSecure do komunikacji HTTPS.
 
 ## Jak uruchomić
 1. Otwórz projekt w PlatformIO.
@@ -140,6 +170,12 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
    .\.platformio\penv\Scripts\platformio.exe run --target uploadfs --environment arduino_nano_esp32
    ```
 4. Po uruchomieniu płyty połącz się z siecią Wi‑Fi utworzoną przez urządzenie (jeśli funkcja jest aktywna) i otwórz adres IP podany w monitorze szeregowym.
+5. Przetestuj przejście do `GAME OVER`, restart przyciskiem fizycznym oraz restart
+   przyciskiem `Start Game` w panelu WWW. Następnie sprawdź, czy wynik został
+   dopisany do arkusza Google Sheets.
+
+Po zmianie wyłącznie firmware wystarczy wykonać `upload`. Po zmianie plików
+w katalogu `data/` należy dodatkowo wykonać `uploadfs`.
 
 ## Struktura projektu
 - `src/main.cpp` – główna logika gry, sterowanie oraz obsługa Wi‑Fi/WWW
@@ -147,8 +183,7 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
 - `platformio.ini` – konfiguracja projektu PlatformIO
 
 ## Uwagi
-Projekt jest nadal rozwijany. Niektóre elementy, zwłaszcza związane z Wi‑Fi i interfejsem WWW, mogą ulegać zmianom w zależności od aktualnego etapu prac.
-
-W obecnej wersji przycisk `Start Game` w panelu WWW jest elementem interfejsu,
-ale nie uruchamia osobnej procedury startowej. Panel WWW nie wyświetla jeszcze
-wyniku ani bieżącego stanu gry.
+Projekt jest nadal rozwijany. Dostęp aplikacji Google Apps Script ustawiony jako
+publiczny (`Anyone`) umożliwia urządzeniu dopisywanie wyników bez logowania.
+W środowisku produkcyjnym należy rozważyć dodatkowy token autoryzacyjny oraz
+walidację parametrów po stronie Apps Script.
