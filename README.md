@@ -30,7 +30,9 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - lokalne Wi-Fi i serwer WWW do zdalnego sterowania,
 - ekran `GAME OVER` z prezentacją końcowego wyniku,
 - ponowne uruchamianie gry przyciskiem obrotu lub przyciskiem `Start Game` w panelu WWW,
-- wysyłanie końcowego wyniku do Google Sheets przez HTTPS.
+- wysyłanie końcowego wyniku do Google Sheets przez HTTPS,
+- identyfikacja gracza przez `PLAYER_ID`,
+- automatyczna identyfikacja konsoli przez `DEVICE_ID`.
 
 ## Sprzęt
 - Arduino Nano ESP32
@@ -65,7 +67,8 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - lokalne Wi-Fi z panelem WWW,
 - zdalne sterowanie ruchem, obrotem i przyspieszeniem opadania,
 - zdalny restart po zakończeniu gry,
-- rejestracja wyniku w arkuszu Google Sheets.
+- rejestracja wyniku w arkuszu Google Sheets,
+- trwałe przechowywanie identyfikatora gracza w pamięci ESP32.
 
 ## Szczegóły rozgrywki
 - plansza gry ma wymiary `10 × 20` pól,
@@ -122,14 +125,35 @@ Polecenie `start` uruchamia nową rozgrywkę wyłącznie w stanie `GAME OVER`.
 Przycisk `OBROT` zachowuje funkcję obrotu klocka podczas normalnej gry, a fizyczny
 przycisk obrotu uruchamia nową rozgrywkę po zakończeniu poprzedniej.
 
+Panel WWW zawiera również sekcję identyfikacji gracza. Użytkownik wpisuje tam
+`PLAYER_ID`, a następnie zapisuje go przyciskiem. Identyfikator jest przechowywany
+w pamięci trwałej ESP32, więc pozostaje po restarcie i odłączeniu zasilania.
+Panel pokazuje także automatycznie wygenerowany `DEVICE_ID` konkretnej konsoli.
+
 ## Integracja z Google Sheets
 Po przejściu gry do stanu `GAME OVER` firmware wysyła jednokrotnie żądanie HTTPS
 do wdrożonej aplikacji Google Apps Script. Przekazywane są parametry:
 
-- `punkty` – końcowa liczba punktów,
-- `player` – identyfikator gracza; obecnie wartość domyślna `Gracz`.
+- `score` – końcowa liczba punktów,
+- `player_id` – zapisany identyfikator gracza,
+- `device_id` – automatyczny identyfikator konsoli.
 
-Aplikacja Apps Script dopisuje dane do arkusza w kolumnach `DATA`, `GRACZ` i `WYNIK`.
+Aplikacja Apps Script dopisuje dane do karty `Wyniki_v2` w kolumnach:
+
+```text
+DATA | PLAYER_ID | DEVICE_ID | WYNIK
+```
+
+Przykładowy wpis może wyglądać tak:
+
+```text
+2026-09-17 18:42 | P-0042 | ESP32-A1B2C3 | 350
+```
+
+Dotychczasowy arkusz może pozostać aktywny dla starszych urządzeń, a `Wyniki_v2`
+może równolegle przyjmować wyniki z urządzeń z nowym firmware'em. Dzięki temu
+identyfikacja może być wdrażana stopniowo, bez usuwania wcześniejszych wyników.
+
 Do obsługi transmisji wykorzystywane są biblioteki `HTTPClient` oraz
 `WiFiClientSecure` dostępne w frameworku Arduino dla ESP32. Firmware obsługuje
 również przekierowania HTTP stosowane przez wdrożenia Google Apps Script.
@@ -170,9 +194,10 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
    .\.platformio\penv\Scripts\platformio.exe run --target uploadfs --environment arduino_nano_esp32
    ```
 4. Po uruchomieniu płyty połącz się z siecią Wi‑Fi utworzoną przez urządzenie (jeśli funkcja jest aktywna) i otwórz adres IP podany w monitorze szeregowym.
-5. Przetestuj przejście do `GAME OVER`, restart przyciskiem fizycznym oraz restart
+5. Otwórz panel WWW, ustaw `PLAYER_ID` i kliknij `Zapisz`.
+6. Przetestuj przejście do `GAME OVER`, restart przyciskiem fizycznym oraz restart
    przyciskiem `Start Game` w panelu WWW. Następnie sprawdź, czy wynik został
-   dopisany do arkusza Google Sheets.
+   dopisany do `Wyniki_v2` wraz z `PLAYER_ID` i `DEVICE_ID`.
 
 Po zmianie wyłącznie firmware wystarczy wykonać `upload`. Po zmianie plików
 w katalogu `data/` należy dodatkowo wykonać `uploadfs`.
