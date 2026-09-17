@@ -18,6 +18,17 @@
         <h1>Sterowanie Tetrisem</h1>
         <p class="status">Status: Połaczono z ESP32</p>
 
+        <section class="player-section">
+            <h2>Identyfikacja gracza</h2>
+            <label for="playerId">PLAYER_ID</label>
+            <div class="player-form">
+                <input id="playerId" type="text" maxlength="24" pattern="[A-Za-z0-9_-]+" autocomplete="off">
+                <button type="button" id="savePlayerId">Zapisz</button>
+            </div>
+            <p id="playerMessage" class="player-message" role="status"></p>
+            <p id="deviceId" class="device-id"></p>
+        </section>
+
         <section class="project-section">
             <h2>Opis projektu</h2>
             <p>To jest prosty projekt Tetrisa obsługiwany przez ESP32. Poniżej możesz odkryć grafikę z finezją.</p>
@@ -76,6 +87,36 @@
         const btnRotate = document.getElementById('btn-rotate');
         const btnDrop = document.getElementById('btn-drop');
         const startButton = document.getElementById('startButton');
+        const playerIdInput = document.getElementById('playerId');
+        const savePlayerIdButton = document.getElementById('savePlayerId');
+        const playerMessage = document.getElementById('playerMessage');
+        const deviceIdLabel = document.getElementById('deviceId');
+
+        fetch('/player-id')
+            .then(response => response.json())
+            .then(data => {
+                playerIdInput.value = data.player_id || '';
+                deviceIdLabel.textContent = 'DEVICE_ID: ' + (data.device_id || 'nieznane');
+            })
+            .catch(() => {
+                playerMessage.textContent = 'Nie udało się pobrać identyfikatora.';
+            });
+
+        savePlayerIdButton.addEventListener('click', () => {
+            const value = playerIdInput.value.trim();
+            if (!/^[A-Za-z0-9_-]+$/.test(value)) {
+                playerMessage.textContent = 'Użyj liter, cyfr, - lub _.';
+                return;
+            }
+            fetch('/player-id?value=' + encodeURIComponent(value))
+                .then(response => response.text().then(message => ({ ok: response.ok, message })))
+                .then(result => {
+                    playerMessage.textContent = result.message;
+                })
+                .catch(() => {
+                    playerMessage.textContent = 'Nie udało się zapisać PLAYER_ID.';
+                });
+        });
 
         if (btnLeft) btnLeft.addEventListener('click', () => sendCommand('left'));
         if (btnRight) btnRight.addEventListener('click', () => sendCommand('right'));

@@ -140,6 +140,50 @@ h2 {
     color: #666;
 }
 
+.player-section {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.player-section label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.player-form {
+    display: flex;
+    gap: 8px;
+}
+
+.player-form input {
+    min-width: 0;
+    flex: 1;
+    padding: 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.player-form button {
+    border: 0;
+    border-radius: 6px;
+    padding: 9px 12px;
+    background: #0f766e;
+    color: #fff;
+    cursor: pointer;
+}
+
+.player-message,
+.device-id {
+    min-height: 18px;
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #475569;
+    overflow-wrap: anywhere;
+}
+
 .pad {
     display: flex;
     flex-wrap: wrap;

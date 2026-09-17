@@ -9,6 +9,7 @@
 #include <WiFiManager.h>
 #include <LittleFS.h>
 #include <WebServer.h>
+#include <Preferences.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -17,6 +18,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 WebServer server(80);
 WiFiManager wifiManager;
+Preferences preferences;
 
 const int pinLeft = 4;
 const int pinRight = 5;
@@ -25,7 +27,9 @@ const int pinRotate = 7;
 const int pinPause = 9;
 const int pinBUZZER = 8;
 const int pinLED = 2;
-const char* googleSheetsUrl = "https://script.google.com/macros/s/AKfycbwffRV2scPw2zQlvZ_5IsjHOVbul0d1vmrOtT-WFDQibqawrBlPSHblQreHbFbD3W9wtQ/exec";
+const char* googleSheetsUrl = "https://script.google.com/macros/s/AKfycbz2Bq958znJh1KQTcB7t2v1TQDevIkYbi4b6Bv0oEnRbpnL0A3ZHl3wFkALC9iEGq7H/exec";
+String playerId;
+String deviceId;
 
 #define MARGIN_LEFT 40
 #define BOARD_WIDTH 10
@@ -63,6 +67,42 @@ bool czyKoniecGry = false;
 bool wynikWyslany = false;
 // Bufor polecenia wysyłanego z interfejsu web (0 = brak, 1=left,2=right,3=rotate,4=drop)
 volatile uint8_t webAction = 0;
+
+String zakodujParametrUrl(const String& value) {
+  const char hex[] = "0123456789ABCDEF";
+  String encoded;
+  for (size_t i = 0; i < value.length(); i++) {
+    unsigned char character = static_cast<unsigned char>(value[i]);
+    if (isalnum(character) || character == '-' || character == '_' || character == '.' || character == '~') {
+      encoded += static_cast<char>(character);
+    } else {
+      encoded += '%';
+      encoded += hex[(character >> 4) & 0x0F];
+      encoded += hex[character & 0x0F];
+    }
+  }
+  return encoded;
+}
+
+String utworzDeviceId() {
+  uint64_t chipId = ESP.getEfuseMac();
+  char formattedId[24];
+  snprintf(formattedId, sizeof(formattedId), "ESP32-%04X%08X",
+           static_cast<uint32_t>(chipId >> 32),
+           static_cast<uint32_t>(chipId & 0xFFFFFFFF));
+  return String(formattedId);
+}
+
+void odczytajIdentyfikatory() {
+  preferences.begin("tetris", false);
+  playerId = preferences.getString("player_id", "P-0001");
+  deviceId = utworzDeviceId();
+}
+
+void zapiszPlayerId(const String& value) {
+  playerId = value;
+  preferences.putString("player_id", playerId);
+}
 
 String contentTypeFromPath(const String& path) {
   if (path.endsWith(".html")) return "text/html";
@@ -112,7 +152,9 @@ void wyslijWynikDoArkusza() {
   WiFiClientSecure client;
   client.setInsecure();
   HTTPClient http;
-  String url = String(googleSheetsUrl) + "?punkty=" + String(punkty) + "&player=Gracz";
+  String url = String(googleSheetsUrl) + "?player_id=" + zakodujParametrUrl(playerId)
+             + "&device_id=" + zakodujParametrUrl(deviceId)
+             + "&score=" + String(punkty);
 
   Serial.println("Wysylanie wyniku do Google Sheets...");
   if (!http.begin(client, url)) {
@@ -248,6 +290,7 @@ void setup() {
   
   EEPROM.begin(EEPROM_SIZE);
   odczytajHighScore();
+  odczytajIdentyfikatory();
   
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
     while(1); 
@@ -309,6 +352,30 @@ void setup() {
       }
     }
     server.send(200, "text/plain", "OK");
+  });
+
+  server.on("/player-id", HTTP_GET, []() {
+    if (server.hasArg("value")) {
+      String newPlayerId = server.arg("value");
+      newPlayerId.trim();
+      if (newPlayerId.length() < 1 || newPlayerId.length() > 24) {
+        server.send(400, "text/plain", "Nieprawidlowe PLAYER_ID");
+        return;
+      }
+      for (size_t i = 0; i < newPlayerId.length(); i++) {
+        char character = newPlayerId[i];
+        if (!(isalnum(static_cast<unsigned char>(character)) || character == '-' || character == '_')) {
+          server.send(400, "text/plain", "PLAYER_ID moze zawierac tylko litery, cyfry, - i _");
+          return;
+        }
+      }
+      zapiszPlayerId(newPlayerId);
+      server.send(200, "text/plain", "PLAYER_ID zapisany");
+      return;
+    }
+
+    String response = "{\"player_id\":\"" + playerId + "\",\"device_id\":\"" + deviceId + "\"}";
+    server.send(200, "application/json", response);
   });
 
   server.onNotFound([]() {
