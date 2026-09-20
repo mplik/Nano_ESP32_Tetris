@@ -39,7 +39,7 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - Wyświetlacz OLED SSD1306 128x64
 - Joystick analogowy 2-axis
 - Alternatywnie: cztery przyciski sterujące oraz przycisk pauzy
-- Buzzer
+- Buzzer pasywny do odtwarzania różnych częstotliwości dźwięku
 - Płytka prototypowa / przewody
 
 ## Sterowanie
@@ -129,6 +129,9 @@ Panel WWW zawiera również sekcję identyfikacji gracza. Użytkownik wpisuje ta
 `PLAYER_ID`, a następnie zapisuje go przyciskiem. Identyfikator jest przechowywany
 w pamięci trwałej ESP32, więc pozostaje po restarcie i odłączeniu zasilania.
 Panel pokazuje także automatycznie wygenerowany `DEVICE_ID` konkretnej konsoli.
+Na każdej nowej płytce `PLAYER_ID` należy ustawić ponownie, ponieważ jest zapisany
+lokalnie w jej pamięci. Jeśli identyfikator nie zostanie zmieniony, używana jest
+wartość domyślna `P-0001`.
 
 ## Integracja z Google Sheets
 Po przejściu gry do stanu `GAME OVER` firmware wysyła jednokrotnie żądanie HTTPS
@@ -194,7 +197,8 @@ Projekt jest przygotowany pod PlatformIO i wykorzystuje:
    .\.platformio\penv\Scripts\platformio.exe run --target uploadfs --environment arduino_nano_esp32
    ```
 4. Po uruchomieniu płyty połącz się z siecią Wi‑Fi utworzoną przez urządzenie (jeśli funkcja jest aktywna) i otwórz adres IP podany w monitorze szeregowym.
-5. Otwórz panel WWW, ustaw `PLAYER_ID` i kliknij `Zapisz`.
+5. Otwórz panel WWW, ustaw `PLAYER_ID` i kliknij `Zapisz`. Na nowej płytce wykonaj
+   tę czynność ponownie, aby przypisać wynik do właściwego gracza.
 6. Przetestuj przejście do `GAME OVER`, restart przyciskiem fizycznym oraz restart
    przyciskiem `Start Game` w panelu WWW. Następnie sprawdź, czy wynik został
    dopisany do `Wyniki_v2` wraz z `PLAYER_ID` i `DEVICE_ID`.
