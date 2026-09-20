@@ -132,16 +132,8 @@ void odczytajHighScore() {
   }
 }
 
-void grajDzwiek(int czestotliwosc, int czasMs) {
-  digitalWrite(pinBUZZER, HIGH);
-  delay(czasMs);
-  digitalWrite(pinBUZZER, LOW);
-}
-
 void wyslijWynikDoArkusza() {
-  if (wynikWyslany) {
-    return;
-  }
+  if (wynikWyslany) return;
   wynikWyslany = true;
 
   if (WiFi.status() != WL_CONNECTED) {
@@ -162,17 +154,54 @@ void wyslijWynikDoArkusza() {
     return;
   }
   http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS);
-
   int kodOdpowiedzi = http.GET();
-  if (kodOdpowiedzi > 0) {
-    Serial.print("Odpowiedz Google Sheets: ");
-    Serial.println(kodOdpowiedzi);
-    Serial.println(http.getString());
-  } else {
-    Serial.print("Blad wysylania wyniku: ");
-    Serial.println(http.errorToString(kodOdpowiedzi));
-  }
+  Serial.print("Odpowiedz Google Sheets: ");
+  Serial.println(kodOdpowiedzi);
   http.end();
+}
+
+void grajDzwiek(int czestotliwosc, int czasMs) {
+  digitalWrite(pinBUZZER, HIGH);
+  delay(czasMs);
+  digitalWrite(pinBUZZER, LOW);
+}
+
+const int introTetris[][2] = {
+  {659, 250},
+  {494, 125},
+  {523, 125},
+  {587, 250},
+  {523, 125},
+  {494, 125},
+  {440, 250}
+};
+
+void odtworzMelodieStartowa() {
+  for (int i = 0; i < 7; i++) {
+    tone(pinBUZZER, introTetris[i][0], introTetris[i][1]);
+    delay(introTetris[i][1] + 50);
+  }
+  noTone(pinBUZZER);
+}
+
+void odtworzDzwiekLinii() {
+  tone(pinBUZZER, 1000, 80);
+  delay(90);
+  tone(pinBUZZER, 1300, 80);
+  delay(90);
+  tone(pinBUZZER, 1800, 150);
+  delay(160);
+  noTone(pinBUZZER);
+}
+
+void odtworzDzwiekKoniecGry() {
+  tone(pinBUZZER, 800, 150);
+  delay(160);
+  tone(pinBUZZER, 600, 150);
+  delay(160);
+  tone(pinBUZZER, 400, 300);
+  delay(310);
+  noTone(pinBUZZER);
 }
 
 bool pobierzKlocek(int k, int r, int x, int y) {
@@ -207,7 +236,7 @@ void nowyKlocek() {
     zapiszHighScore();
     wyslijWynikDoArkusza();
     czyKoniecGry = true;
-    grajDzwiek(150, 300);
+    odtworzDzwiekKoniecGry();
   }
 }
 
@@ -220,7 +249,7 @@ void resetujGre() {
   czyKoniecGry = false;
   wynikWyslany = false;
   czyPauza = false;
-  przyciskPuszczony = false;
+  przyciskPuszczony = true;
   aktualnyKlocek = random(0, 7);
   nastepnyKlocek = random(0, 7);
   aktualnyX = BOARD_WIDTH / 2 - 2;
@@ -257,7 +286,7 @@ void sprawdzLinie() {
     digitalWrite(pinLED, HIGH);
     delay(50);
     digitalWrite(pinLED, LOW);
-    grajDzwiek(800, 100);
+    odtworzDzwiekLinii();
   }
 }
 
@@ -401,6 +430,7 @@ void setup() {
 
   server.begin();
   Serial.println("Serwer WWW wystartował.");
+  odtworzMelodieStartowa();
 }
 
 void loop() {
@@ -415,12 +445,10 @@ void loop() {
     display.setCursor(20, 30);
     display.print("Wynik: ");
     display.print(punkty);
-
     if ((millis() / 500) % 2 == 0) {
       display.setCursor(18, 48);
       display.print("PRESS TO START");
     }
-
     display.display();
 
     uint8_t gameOverAction = webAction;
