@@ -169,6 +169,36 @@ również przekierowania HTTP stosowane przez wdrożenia Google Apps Script.
 Adres wdrożenia nie jest przechowywany w dokumentacji publicznej. Jest zapisany
 w konfiguracji firmware urządzenia.
 
+## 🏆 Leaderboard
+
+Projekt posiada internetową tablicę liderów, która prezentuje trzy najlepsze
+wyniki uzyskane podczas rozgrywki.
+
+### Jak to działa?
+
+1. Gra kończy się wynikiem gracza.
+2. Firmware wysyła wynik do Google Sheets.
+3. Serwer zlokalizowany we Frankfurcie pobiera aktualne dane z arkusza.
+4. Tablica liderów automatycznie wybiera i prezentuje trzy najlepsze wyniki.
+
+### Aktualny stan funkcji
+
+- [x] Wysyłanie wyników do Google Sheets
+- [x] Automatyczne pobieranie wyników przez serwer
+- [x] Prezentowanie trzech najlepszych wyników
+- [x] Automatyczna aktualizacja tablicy liderów
+
+| Miejsce | Gracz | Wynik |
+| ---: | --- | ---: |
+| 🥇 1 | — | — |
+| 🥈 2 | — | — |
+| 🥉 3 | — | — |
+
+> Tablica liderów jest zasilana danymi z Google Sheets i aktualizuje się co 10 minut
+> automatycznie po pojawieniu się nowych wyników.
+
+[🌐 Otwórz tablicę liderów](https://top.nanoplay.eu)
+
 ## Efekty i pamięć
 - obrót klocka, usunięcie linii i zakończenie gry sygnalizowane są dźwiękiem,
 - dioda LED pozostaje zgaszona podczas normalnej rozgrywki,
