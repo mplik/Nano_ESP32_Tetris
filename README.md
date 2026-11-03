@@ -42,6 +42,11 @@ Projekt jest w trakcie rozwoju. Obecnie wspierane są:
 - Buzzer pasywny do odtwarzania różnych częstotliwości dźwięku
 - Płytka prototypowa / przewody
 
+### Dodatkowe elementy zasilania
+
+- [ ] Akumulator Li-Pol Akyga 470 mAh 1S 3,7 V, przewody 50 mm, 30 × 30 × 6 mm
+- [ ] Ładowarka Li-Ion HW-373 v1.2.1 TP4056, pojedyncza cela 1S 3,7 V, USB Type-C, z zabezpieczeniami
+
 ## Sterowanie
 
 ### Wariant joystickowy
